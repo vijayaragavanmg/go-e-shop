@@ -1,0 +1,114 @@
+erDiagram
+    USERS {
+        serial id PK
+        varchar email "UNIQUE NOT NULL"
+        varchar password "NOT NULL"
+        varchar first_name "NOT NULL"
+        varchar last_name "NOT NULL"
+        varchar phone
+        boolean is_active "DEFAULT true"
+        enum role "DEFAULT 'customer'"
+        timestamptz created_at
+        timestamptz updated_at
+        timestamptz deleted_at
+    }
+
+    REFRESH_TOKENS {
+        serial id PK
+        integer user_id FK "→ USERS.id ON DELETE CASCADE"
+        varchar token "UNIQUE NOT NULL"
+        timestamptz expires_at "NOT NULL"
+        timestamptz created_at
+        timestamptz deleted_at
+    }
+
+    %% Relationship
+    USERS ||--o{ REFRESH_TOKENS : "has"
+
+    CATEGORIES {
+        serial id PK
+        varchar name "NOT NULL"
+        text description
+        boolean is_active "DEFAULT true"
+        timestamptz created_at
+        timestamptz updated_at
+        timestamptz deleted_at
+    }
+
+    PRODUCTS {
+        serial id PK
+        integer category_id FK "→ CATEGORIES.id ON DELETE CASCADE"
+        varchar name "NOT NULL"
+        text description
+        numeric price "(10,2) NOT NULL"
+        integer stock "DEFAULT 0"
+        varchar sku "UNIQUE NOT NULL"
+        boolean is_active "DEFAULT true"
+        timestamptz created_at
+        timestamptz updated_at
+        timestamptz deleted_at
+    }
+
+    PRODUCT_IMAGES {
+        serial id PK
+        integer product_id FK "→ PRODUCTS.id ON DELETE CASCADE"
+        varchar url "NOT NULL"
+        varchar alt_text
+        boolean is_primary "DEFAULT false"
+        timestamptz created_at
+        timestamptz deleted_at
+    }
+
+    %% Relationships
+    CATEGORIES ||--o{ PRODUCTS : "contains"
+    PRODUCTS ||--o{ PRODUCT_IMAGES : "has"
+
+
+    CARTS {
+        serial id PK
+        integer user_id "UNIQUE NOT NULL FK → users.id ON DELETE CASCADE"
+        timestamptz created_at
+        timestamptz updated_at
+        timestamptz deleted_at
+    }
+
+    CART_ITEMS {
+        serial id PK
+        integer cart_id FK "→ carts.id ON DELETE CASCADE"
+        integer product_id FK "→ products.id ON DELETE CASCADE"
+        integer quantity "CHECK (quantity > 0)"
+        timestamptz created_at
+        timestamptz updated_at
+        timestamptz deleted_at
+    }
+
+    %% Relationships
+    CARTS ||--o{ CART_ITEMS : "contains"
+    PRODUCTS ||--o{ CART_ITEMS : "added as"
+    USERS ||--|| CARTS : "has one"
+
+  
+    ORDERS {
+        serial id PK
+        integer user_id "FK → users.id ON DELETE CASCADE"
+        enum status "order_status DEFAULT 'pending'"
+        numeric total_amount "(10,2) NOT NULL"
+        timestamptz created_at
+        timestamptz updated_at
+        timestamptz deleted_at
+    }
+
+    ORDER_ITEMS {
+        serial id PK
+        integer order_id "FK → orders.id ON DELETE CASCADE"
+        integer product_id "FK → products.id ON DELETE CASCADE"
+        integer quantity "CHECK (quantity > 0)"
+        numeric price "(10,2) NOT NULL"
+        timestamptz created_at
+        timestamptz deleted_at
+    }
+
+    %% Relationships
+    USERS ||--o{ ORDERS : "places"
+    ORDERS ||--o{ ORDER_ITEMS : "contains"
+    PRODUCTS ||--o{ ORDER_ITEMS : "ordered as"

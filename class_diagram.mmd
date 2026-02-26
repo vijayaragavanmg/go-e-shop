@@ -1,0 +1,107 @@
+classDiagram
+    class USERS {
+        +int id
+        +string email
+        +string password
+        +string first_name
+        +string last_name
+        +string phone
+        +bool is_active
+        +string role
+        +datetime created_at
+        +datetime updated_at
+        +datetime deleted_at
+    }
+
+    class REFRESH_TOKENS {
+        +int id
+        +int user_id
+        +string token
+        +datetime expires_at
+        +datetime created_at
+        +datetime deleted_at
+    }
+
+    class CATEGORIES {
+        +int id
+        +string name
+        +string description
+        +bool is_active
+        +datetime created_at
+        +datetime updated_at
+        +datetime deleted_at
+    }
+
+    class PRODUCTS {
+        +int id
+        +int category_id
+        +string name
+        +string description
+        +float price
+        +int stock
+        +string sku
+        +bool is_active
+        +datetime created_at
+        +datetime updated_at
+        +datetime deleted_at
+    }
+
+    class PRODUCT_IMAGES {
+        +int id
+        +int product_id
+        +string url
+        +string alt_text
+        +bool is_primary
+        +datetime created_at
+        +datetime deleted_at
+    }
+
+    class CARTS {
+        +int id
+        +int user_id
+        +datetime created_at
+        +datetime updated_at
+        +datetime deleted_at
+    }
+
+    class CART_ITEMS {
+        +int id
+        +int cart_id
+        +int product_id
+        +int quantity
+        +datetime created_at
+        +datetime updated_at
+        +datetime deleted_at
+    }
+
+    class ORDERS {
+        +int id
+        +int user_id
+        +string status
+        +float total_amount
+        +datetime created_at
+        +datetime updated_at
+        +datetime deleted_at
+    }
+
+    class ORDER_ITEMS {
+        +int id
+        +int order_id
+        +int product_id
+        +int quantity
+        +float price
+        +datetime created_at
+        +datetime deleted_at
+    }
+
+    USERS "1" o-- "many" REFRESH_TOKENS : has
+    USERS "1" o-- "1" CARTS : has
+    USERS "1" o-- "many" ORDERS : places
+
+    CATEGORIES "1" o-- "many" PRODUCTS : contains
+    PRODUCTS "1" o-- "many" PRODUCT_IMAGES : has
+    CARTS "1" o-- "many" CART_ITEMS : contains
+    PRODUCTS "1" o-- "many" CART_ITEMS : added_as
+    PRODUCTS "1" o-- "many" ORDER_ITEMS : ordered_as
+    ORDERS "1" o-- "many" ORDER_ITEMS : contains
+    CART_ITEMS "many" o-- "1" CARTS : belongs_to
